@@ -5,14 +5,12 @@ public class toNumTest {
         char letter = 'b';
         int num;
 
-        num = (int)(letter - 97 + SEED);
+        toNum('a');
+//        toNum('b');
 
-        System.out.println(num);
-        System.out.println(toChar(num));
     }
 
     public static String toChar(int num) {
-
         if(num < 0) return null;
 
         int quot = num / 26;
@@ -21,5 +19,14 @@ public class toNumTest {
 
         if (quot == 0) return "" + letter;
         else return toChar(quot - 1) + letter;
+    }
+
+    public static void toNum(char in) {
+        int intValue = in; // returns ascii
+        char char1 = 'b';
+        int num = char1 - 0;
+        System.out.println("Inputted Character: " + in + "\nInteger value: " + intValue);
+
+        System.out.println(num - '0' - 49 - SEED);
     }
 }

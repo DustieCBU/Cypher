@@ -23,10 +23,11 @@ import java.util.StringTokenizer;
 
 public class Cypher {
     private static final int SEED = 0;
+    private static final int DECIMAL_PLACES = 2;
 
     public static void main(String[] args) {
         String input = prompt();
-        String[] arr = toArray(input);
+        String[] arr = toArray(input.toLowerCase());
         boolean outgoing = check(arr);
         if (!outgoing) displayMessage(encrypt(arr)); // TODO: Uncomment
         else displayMessage(decrypt(arr));
@@ -83,15 +84,22 @@ public class Cypher {
     public static String encrypt(String[] arr) {
         StringBuilder str = new StringBuilder();
         Random r = new Random();
-        double random;
+        String dub; // idk what to name it :sob:
+        double randomDouble;
 
         for (int i = 0; i < arr.length; i++) {
-            random = 0.1 + r.nextDouble() * (10 - 0.1);
+            randomDouble = 0.1 + r.nextDouble() * (10 - 0.1); // random double
+            dub = Double.toString(randomDouble).substring(0, 2 + DECIMAL_PLACES); // rounding to decimal places
+
             for (char c : arr[i].toCharArray()) {
                 str.append(toNum(c));
+                str.append(" ");
+                str.append(r.nextInt((1000 - 100) + 1) + 100);
+                str.append(" ");
+                str.append(r.nextInt((1000 - 100) + 1) + 100);
+                str.append(" ");
             }
-            str.append(" ");
-            str.append(random);
+            str.append(dub); // every double is a space
             str.append(" ");
         }
 
@@ -100,8 +108,9 @@ public class Cypher {
     public static String decrypt(String[] arr) { // works with single int but not an actual array yet (see fixing ^)
         StringBuilder str = new StringBuilder();
 
-        for (int i = 0; i < arr.length; i++) {
-            if (!arr[i].contains(".")) str.append(toChar(Integer.parseInt(arr[i])));
+        for (String s : arr) {
+            if (!s.contains(".") && s.length() <= 2) str.append(toChar(Integer.parseInt(s)));
+            if (s.contains(".")) str.append(" ");
         }
 
        return str.toString();
@@ -110,7 +119,7 @@ public class Cypher {
     // method to make each integer a character
     public static String toChar(int num) {
 
-        if(num < 0) return null;
+        if (num < 0) return null;
 
         int quot = num / 26;
         int rem = num % 26;
@@ -121,6 +130,8 @@ public class Cypher {
     }
 
     public static int toNum(char in) {
-        return (char)(in - 97 + SEED);
+        int num = in - '0';
+
+        return num - 49 - SEED;
     }
 }
