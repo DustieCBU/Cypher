@@ -9,6 +9,7 @@
 // TODO: FIXING
 //  wrapping output text
 //  fix decypher()
+//  reading multi-line input from user
 
 
 
@@ -51,8 +52,8 @@ public class Cypher {
     private static boolean quit() {
         Scanner scan = new Scanner(System.in);
 
-        System.out.println("\nCONTINUE - ANY CHARACTER\nQUIT     - ENTER");
-        return !scan.nextLine().isEmpty();
+        System.out.println("\nCONTINUE - ENTER\nQUIT     - ANY CHARACTER");
+        return scan.nextLine().isEmpty();
     }
     private static int getSeed(Scanner scan) {
         String seedInput = "";
