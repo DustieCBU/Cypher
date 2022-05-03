@@ -2,54 +2,86 @@
  Caleb Aragones 4/27/22  */
 
 // TODO: IDEAS
-//  random float as a space in between
+//  ++ random float as a space in between ++
 //  have a JPanel window display the final message
 //  input/type into JPanel instead of console
 
 // TODO: FIXING
-//  rearrange when it checks for incoming or outgoing because toArray() scans for tokens and not characters.
-//  or just reuse to array with a different scanner?
-//  >
-//  fix decrypt to make floats a space
+//  wrapping output text
+//  fix decypher()
 
 
-// This first rendition isn't using random at all
-// I have it set to convert a character to an integer using basic parsing
-// and just adding the seed to it
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 public class Cypher {
-    private static final int SEED = 0;
+    private static  int SEED;
     private static final int DECIMAL_PLACES = 2;
+    private static final String LINEBREAK = "\n";
+    private static final int MAX_SIZE = 10000;
+    private static final int MAX_RANDOM_INTS = 10;
+    private static boolean RUN = true;
 
     public static void main(String[] args) {
-        String input = prompt();
-        String[] arr = toArray(input.toLowerCase());
-        boolean outgoing = check(arr);
-        if (!outgoing) displayMessage(encrypt(arr)); // TODO: Uncomment
-        else displayMessage(decrypt(arr));
+        while (RUN) {
+            String input = prompt();
+            String[] arr = toArray(input.toLowerCase());
+            boolean outgoing = check(arr);
+            if (!outgoing) displayMessage(encrypt(arr));
+            else displayMessage(decrypt(arr));
+            RUN = quit();
+        }
     }
 
-    // intro prompt
+    // intro prompt to get message
     private static String prompt() {
         Scanner scan = new Scanner(System.in);
-//        System.out.print("Enter seed >>> ");
-//        SEED = scan.nextInt();
-        System.out.print("Enter message >>> "); // prompt user
+
+        SEED = getSeed(scan);
+        return getMessage(scan);
+    }
+
+    private static boolean quit() {
+        Scanner scan = new Scanner(System.in);
+
+        System.out.println("\nCONTINUE - ANY CHARACTER\nQUIT     - ENTER");
+        return !scan.nextLine().isEmpty();
+    }
+    private static int getSeed(Scanner scan) {
+        String seedInput = "";
+
+        while (!isNumeric(seedInput)) {
+            System.out.print("ENTER SEED >>> "); // get SEED from user
+            seedInput = scan.nextLine();
+            if (!isNumeric(seedInput)) System.out.println("INVALID SEED");
+        }
+        return Integer.parseInt(seedInput);
+    }
+
+    private static String getMessage(Scanner scan) {
+        System.out.println("ENTER MESSAGE (NO SPECIAL CHARACTERS) ");
         return scan.nextLine();
     }
 
+    // displays message with wrapped lines
     private static void displayMessage (String in) {
-        System.out.println("\n" + in);
+        // TODO: Disabled until I can figure out how to read multiple lines of input
+//        System.out.println("\nMESSAGE >>> " + wrap(in, 100));
+        System.out.println("\nMESSAGE >>> \n" + in);
+
     }
 
-    // method that separates outgoing message into an array
-    // TODO: Need an array or separation for each character
+    // method that separates message into an array of tokens
     private static String[] toArray(String input) {
         int size;
+
         // StringTokenizer counts tokens to get the size of the array
         StringTokenizer tokens = new StringTokenizer(input);
         if (input == null || input.isEmpty()) size = 0;
@@ -81,6 +113,7 @@ public class Cypher {
         }
     }
 
+    // method to encrypt message by adding random integers and doubles at set intervals
     public static String encrypt(String[] arr) {
         StringBuilder str = new StringBuilder();
         Random r = new Random();
@@ -94,10 +127,7 @@ public class Cypher {
             for (char c : arr[i].toCharArray()) {
                 str.append(toNum(c));
                 str.append(" ");
-                str.append(r.nextInt((1000 - 100) + 1) + 100);
-                str.append(" ");
-                str.append(r.nextInt((1000 - 100) + 1) + 100);
-                str.append(" ");
+                str.append(generateRandomInts(r, r.nextInt((MAX_RANDOM_INTS - 1) + 1) + 1)); // generate a random number of integers
             }
             str.append(dub); // every double is a space
             str.append(" ");
@@ -105,7 +135,19 @@ public class Cypher {
 
         return str.toString();
     }
-    public static String decrypt(String[] arr) { // works with single int but not an actual array yet (see fixing ^)
+
+    public static String generateRandomInts(Random r, int count) {
+        StringBuilder str = new StringBuilder();
+
+        for (int i = 0; i <= count; i++) {
+            str.append(r.nextInt((MAX_SIZE - 100) + 1) + 100);
+            str.append(" ");
+        }
+        return str.toString();
+    }
+
+    // method excludes floats and adds a space instead
+    public static String decrypt(String[] arr) {
         StringBuilder str = new StringBuilder();
 
         for (String s : arr) {
@@ -116,10 +158,9 @@ public class Cypher {
        return str.toString();
     }
 
-    // method to make each integer a character
     public static String toChar(int num) {
 
-        if (num < 0) return null;
+        if (num < 0) return "";
 
         int quot = num / 26;
         int rem = num % 26;
@@ -132,6 +173,38 @@ public class Cypher {
     public static int toNum(char in) {
         int num = in - '0';
 
-        return num - 49 - SEED;
+        return num - 49;
+    }
+
+    // both methods from
+    // https://stackoverflow.com/questions/4055430/java-code-for-wrapping-text-lines-to-a-max-line-width
+    public static String wrap(String string, int lineLength) {
+        StringBuilder b = new StringBuilder();
+        for (String line : string.split(Pattern.quote(LINEBREAK))) {
+            b.append(wrapLine(line, lineLength));
+        }
+        return b.toString();
+    }
+
+    private static String wrapLine(String line, int lineLength) {
+        if (line.length() == 0) return LINEBREAK;
+        if (line.length() <= lineLength) return line + LINEBREAK;
+        String[] words = line.split(" ");
+        StringBuilder allLines = new StringBuilder();
+        StringBuilder trimmedLine = new StringBuilder();
+        for (String word : words) {
+            if (trimmedLine.length() + 1 + word.length() <= lineLength) {
+                trimmedLine.append(word).append(" ");
+            } else {
+                allLines.append(trimmedLine).append(LINEBREAK);
+                trimmedLine = new StringBuilder();
+                trimmedLine.append(word).append(" ");
+            }
+        }
+        if (trimmedLine.length() > 0) {
+            allLines.append(trimmedLine);
+        }
+        allLines.append(LINEBREAK);
+        return allLines.toString();
     }
 }
