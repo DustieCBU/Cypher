@@ -7,16 +7,10 @@
 //  input/type into JPanel instead of console
 
 // TODO: FIXING
-//  wrapping output text
-//  fix decypher()
+//  wrapping output text OR multi-line input from user from one paste
+//  fix toNum() so there are no negatives
 //  reading multi-line input from user
 
-
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.StringTokenizer;
@@ -61,7 +55,7 @@ public class Cypher {
         while (!isNumeric(seedInput)) {
             System.out.print("ENTER SEED >>> "); // get SEED from user
             seedInput = scan.nextLine();
-            if (!isNumeric(seedInput)) System.out.println("INVALID SEED");
+            if (!isNumeric(seedInput)) System.out.println("INVALID SEED\n");
         }
         return Integer.parseInt(seedInput);
     }
@@ -74,8 +68,8 @@ public class Cypher {
     // displays message with wrapped lines
     private static void displayMessage (String in) {
         // TODO: Disabled until I can figure out how to read multiple lines of input
-//        System.out.println("\nMESSAGE >>> " + wrap(in, 100));
-        System.out.println("\nMESSAGE >>> \n" + in);
+        //System.out.println("\n\nMESSAGE >>> " + wrap(in, 100));
+       System.out.println("\nMESSAGE >>> \n" + in);
 
     }
 
@@ -160,7 +154,6 @@ public class Cypher {
     }
 
     public static String toChar(int num) {
-
         if (num < 0) return "";
 
         int quot = num / 26;
@@ -172,7 +165,7 @@ public class Cypher {
     }
 
     public static int toNum(char in) {
-        int num = in - '0';
+        int num = in - '0' - SEED;
 
         return num - 49;
     }
