@@ -1,7 +1,7 @@
 import java.util.TreeMap;
 
 public class toNumTest {
-    private static final int SEED = 2;
+    private static final int SEED = 0;
 
     public static void main(String[] args) {
         System.out.println("To Num Test");
@@ -13,22 +13,20 @@ public class toNumTest {
     }
 
     public static void testNums() {
-        String letters = "abcdefghijklmnopqurstuvwxyz";
+        String letters = "abcdefghijklmnopqrstuvwxyz";
         char[] letterArr = letters.toCharArray();
-        int count = SEED;
         TreeMap<Character, Integer> nums = new TreeMap<>();
 
-        for (char c : letterArr) {
-            nums.put(c, count);
-            count++;
+        for (int i = 0; i < letterArr.length; i++) {
+            int count = i + SEED;
+            nums.put(letterArr[i], count);
         }
         System.out.println("Testing toNums()...");
-        System.out.println(nums.toString());
+        System.out.println(nums);
     }
 
     public static void testChars() {
         int[] intArr = new int[26];
-        int count = SEED;
         TreeMap<String, Integer> chars = new TreeMap<>();
 
         for (int i = 0; i < 26 ; i++) {
@@ -37,7 +35,7 @@ public class toNumTest {
         }
 
         System.out.println("Testing toChar()...");
-        System.out.println(chars.toString());
+        System.out.println(chars);
 
 
     }

@@ -8,25 +8,25 @@
 
 // TODO: FIXING
 //  wrapping output text OR multi-line input from user from one paste
-//  fix toNum() so there are no negatives
 //  reading multi-line input from user
+//  optimize duplicate code on line 99
 
-import java.util.Random;
-import java.util.Scanner;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class Cypher {
     private static  int SEED;
     private static final int DECIMAL_PLACES = 2;
     private static final String LINEBREAK = "\n";
-    private static final int MAX_SIZE = 10000;
+    private static final int MAX_SIZE = 1000;
     private static final int MAX_RANDOM_INTS = 10;
     private static boolean RUN = true;
+    private static TreeMap<Integer, Character> map = new TreeMap<>();
 
     public static void main(String[] args) {
         while (RUN) {
             String input = prompt();
+            initialize();
             String[] arr = toArray(input.toLowerCase());
             boolean outgoing = check(arr);
             if (!outgoing) displayMessage(encrypt(arr));
@@ -35,27 +35,66 @@ public class Cypher {
         }
     }
 
+    // initialize maps with appropriate values based on seed given
+    private static void initialize() {
+        String letters = "abcdefghijklmnopqrstuvwxyz";
+        char[] letterArr = letters.toCharArray();
+        int[] intArr = new int[26];
+        int count = SEED;
+
+        // clear the map
+        map.clear();
+
+        // initialize  map
+        for (char c : letterArr) {
+            map.put(count, c);
+            count++;
+        }
+    }
+
+    // finding number in map
+    private static int getNum(Character value) {
+        for (Map.Entry<Integer, Character> entry : map.entrySet()) {
+            if (entry.getValue().equals(value)) {
+                return entry.getKey();
+            }
+        }
+        return 0;
+    }
+
+    // finding character in map
+    private static String getChar(int in) {
+        for (Map.Entry<Integer, Character> entry : map.entrySet()) {
+            if (entry.getKey().equals(in)) {
+                return "" + entry.getValue(); // casting character to string
+            }
+        }
+        return "";
+    }
+
     // intro prompt to get message
     private static String prompt() {
         Scanner scan = new Scanner(System.in);
 
-        SEED = getSeed(scan);
-        return getMessage(scan);
+        SEED = getSeed(scan); // prompt for seed
+        return getMessage(scan); // prompt for message and return String
     }
 
+    // prompt user to continue
     private static boolean quit() {
         Scanner scan = new Scanner(System.in);
 
         System.out.println("\nCONTINUE - ENTER\nQUIT     - ANY CHARACTER");
         return scan.nextLine().isEmpty();
     }
+
     private static int getSeed(Scanner scan) {
         String seedInput = "";
 
-        while (!isNumeric(seedInput)) {
+        while (!isNumeric(seedInput) || Integer.parseInt(seedInput) > 74) { // how to optimize this duplicate code?
             System.out.print("ENTER SEED >>> "); // get SEED from user
             seedInput = scan.nextLine();
-            if (!isNumeric(seedInput)) System.out.println("INVALID SEED\n");
+            if (!isNumeric(seedInput) || Integer.parseInt(seedInput) > 74) System.out.println("INVALID SEED\n");
         }
         return Integer.parseInt(seedInput);
     }
@@ -112,20 +151,20 @@ public class Cypher {
     public static String encrypt(String[] arr) {
         StringBuilder str = new StringBuilder();
         Random r = new Random();
-        String dub; // idk what to name it :sob:
+        String dub; // idk what to name it :sob: the double as a string
         double randomDouble;
 
+        // each word
         for (int i = 0; i < arr.length; i++) {
             randomDouble = 0.1 + r.nextDouble() * (10 - 0.1); // random double
             dub = Double.toString(randomDouble).substring(0, 2 + DECIMAL_PLACES); // rounding to decimal places
 
+            // each word as character array
             for (char c : arr[i].toCharArray()) {
-                str.append(toNum(c));
-                str.append(" ");
+                str.append(getNum(c)).append(" ");
                 str.append(generateRandomInts(r, r.nextInt((MAX_RANDOM_INTS - 1) + 1) + 1)); // generate a random number of integers
             }
-            str.append(dub); // every double is a space
-            str.append(" ");
+            str.append(dub).append(" "); // every double is a space
         }
 
         return str.toString();
@@ -146,7 +185,7 @@ public class Cypher {
         StringBuilder str = new StringBuilder();
 
         for (String s : arr) {
-            if (!s.contains(".") && s.length() <= 2) str.append(toChar(Integer.parseInt(s)));
+            if (!s.contains(".") && s.length() <= 2) str.append(getChar(Integer.parseInt(s)));
             if (s.contains(".")) str.append(" ");
         }
 
@@ -158,16 +197,10 @@ public class Cypher {
 
         int quot = num / 26;
         int rem = num % 26;
-        char letter = (char)((int)'a' + rem + SEED); // TODO: <<<scuffed algorithm>>>
+        char letter = (char)((int)'a' + rem);
 
         if (quot == 0) return "" + letter;
         else return toChar(quot - 1) + letter;
-    }
-
-    public static int toNum(char in) {
-        int num = in - '0' - SEED;
-
-        return num - 49;
     }
 
     // both methods from
