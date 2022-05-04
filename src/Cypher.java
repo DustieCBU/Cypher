@@ -100,7 +100,7 @@ public class Cypher {
     }
 
     private static String getMessage(Scanner scan) {
-        System.out.println("ENTER MESSAGE (NO SPECIAL CHARACTERS) ");
+        System.out.println("ENTER MESSAGE ");
         return scan.nextLine();
     }
 
